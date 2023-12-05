@@ -13,21 +13,23 @@ const userController ={
 
         bcypt.genSalt(10, (err, salt)=>{
             if(err){
-                console.log(err);
+                res.send(err).status(400);
             }
             bcypt.hash(password, salt, async (err, hash)=>{
                 if(err){
-                    res.send("houve algum erro com seu cadastro");
+                    res.send("houve algum erro com seu cadastro").status(400);
                 }
                 else{
                     const user = {
                         username, password: hash, email
                     }
                     await userModel.create(user).then((response)=>{
-                        res.status(201).json({res:response, message: "usuario criado"})
+                        res.status(201).json({message: "usuario criado"})
             
                     }).catch((err)=>{
-                        res.send(err);
+                        res
+                        .status(401)
+                        .json({message: "Usuário não foi criado"});
                     })
                 }
             })
@@ -51,7 +53,7 @@ const userController ={
   },
   login: async(req, res)=>{
     const {email, password} = req.body
-        const user = await userModel.findOne({email:email}).exec().then((response)=>{
+        await userModel.findOne({email:email}).exec().then((response)=>{
             if(response){
                 bcypt.compare(password, response.password, (err, result)=>{
                     if(result){
@@ -59,16 +61,16 @@ const userController ={
                             data:{username: response.username}
                             
                         }, process.env.TOKEN_SECRET, {expiresIn: "10h"})
-  
-                        res.json({data:{username: response.username, id: response.id, token: token, message: "aqui o token do usuário"}})  
+                        
+                        res.json({username: response.username, id: response.id, token: token, message: "aqui o token do usuário"})  
                     }
                     else{
-                        res.send(result)
+                    res.json({message:"Houve algum erro com seu login"}).status(400)
                     }
                 })
             }
             else{
-                res.send("deu ruim")
+                res.send({message: "houve algum erro com seu login"}).status(400)
             }
         })
 
