@@ -65,12 +65,16 @@ const userController ={
                         res.json({username: response.username, id: response.id, token: token, message: "aqui o token do usuário"})  
                     }
                     else{
-                    res.json({message:"Houve algum erro com seu login"}).status(400)
+                    res
+                    .status(400)
+                    .json({message:"Houve algum erro com seu login"})
                     }
                 })
             }
             else{       
-                res.send({message: "houve algum erro com seu login"}).status(400)
+                res
+                .status(400)
+                .json({message: "houve algum erro com seu login"})
             }
         })
 
